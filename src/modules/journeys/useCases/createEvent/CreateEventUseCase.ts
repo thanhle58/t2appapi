@@ -26,21 +26,13 @@ export class CreateEventUseCase
   }
 
   async execute(request: CreateEventDTO): Promise<Response> {
-    const {
-      title,
-      start_date,
-      end_date,
-      price,
-      create_by,
-      status,
-      location_id,
-      type,
-    } = request;
-
+    const { title, price, create_by, status, location_id, type } = request;
     const memnberidIsExist = await this.memberRepo.exists(create_by);
 
     if (!memnberidIsExist) {
-      return left(new GenericAppError.UnexpectedError(`User id: ${create_by} not found`)) as Response;
+      return left(
+        new GenericAppError.UnexpectedError(`User id: ${create_by} not found`)
+      ) as Response;
     }
 
     const memberIdOrError = MemberId.create(new UniqueEntityID(create_by));
@@ -49,24 +41,25 @@ export class CreateEventUseCase
       return left(Result.fail<MemberId>(memberIdOrError.error));
     }
 
-    const eventOrError = Journey.create({
+    const journeysOrError = Journey.create({
       title: title,
-      startDate: start_date,
-      endDate: end_date,
+      startDate: new Date().getMinutes(),
+      endDate: new Date().getMinutes(),
       price: price || 0,
       createBy: memberIdOrError.getValue(),
-      // status: status || 0,
+      type: type,
+      status: status,
     });
 
     // const combinedPropsResult = Result.combine([]);
 
-    if (eventOrError.isFailure) {
-      return left(Result.fail<Journey>(eventOrError.error)) as Response;
+    if (journeysOrError.isFailure) {
+      return left(Result.fail<Journey>(journeysOrError.error)) as Response;
     }
 
-    const event: Journey = eventOrError.getValue();
+    const journey: Journey = journeysOrError.getValue();
     try {
-      await this.eventRepo.save(event);
+      await this.eventRepo.save(journey);
     } catch (err) {
       return left(new GenericAppError.UnexpectedError(err.error)) as Response;
     }

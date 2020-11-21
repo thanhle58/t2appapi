@@ -14,6 +14,8 @@ export class CreateEventController extends BaseController {
 
   async executeImpl(): Promise<any> {
     const dto: CreateEventDTO = this.req.body as CreateEventDTO;
+    dto.create_by = this.req.params["memberid"];
+
     try {
       const result = await this.eventCase.execute(dto);
       if (result.isLeft()) {
@@ -28,7 +30,7 @@ export class CreateEventController extends BaseController {
         return this.created(this.res);
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return this.fail(err.message);
     }
   }
