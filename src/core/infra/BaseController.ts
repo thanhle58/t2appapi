@@ -94,7 +94,7 @@ export abstract class BaseController {
 
   public fail(error: Error | string) {
     return this.res.status(500).json({
-      message: error.toString(),
+      message:  error.toString(),
     });
   }
 }

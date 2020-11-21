@@ -5,9 +5,11 @@ import { UniqueEntityID } from "../../../../core/domain/UniqueEntityID";
 
 import { GenericAppError } from "../../../../core/logic/AppError";
 import { IEventRepo } from "../../repos/eventRepo";
+import { IMemberRepo } from "../../repos/memberRepo";
 import { Journey } from "../../domain/journey";
 import { MemberId } from "../../domain/memberId";
 import { LocationId } from "../../domain/locationId";
+import Aws from "serverless/aws";
 type Response = Either<
   GenericAppError.UnexpectedError | Result<any>,
   Result<void>
@@ -16,9 +18,11 @@ type Response = Either<
 export class CreateEventUseCase
   implements UseCase<CreateEventDTO, Promise<Response>> {
   private eventRepo: IEventRepo;
+  private memberRepo: IMemberRepo;
 
-  constructor(eventRepo: IEventRepo) {
+  constructor(eventRepo: IEventRepo, memberRepo: IMemberRepo) {
     this.eventRepo = eventRepo;
+    this.memberRepo = memberRepo;
   }
 
   async execute(request: CreateEventDTO): Promise<Response> {
@@ -33,19 +37,17 @@ export class CreateEventUseCase
       type,
     } = request;
 
+    const memnberidIsExist = await this.memberRepo.exists(create_by);
+
+    if (!memnberidIsExist) {
+      return left(new GenericAppError.UnexpectedError(`User id: ${create_by} not found`)) as Response;
+    }
+
     const memberIdOrError = MemberId.create(new UniqueEntityID(create_by));
 
     if (memberIdOrError.isFailure) {
       return left(Result.fail<MemberId>(memberIdOrError.error));
     }
-
-    // const locationIdOrError = LocationId.create(
-    //   new UniqueEntityID(location_id)
-    // );
-
-    // if (locationIdOrError.error) {
-    //   return left(Result.fail<LocationId>(memberIdOrError.error));
-    // }
 
     const eventOrError = Journey.create({
       title: title,
@@ -63,8 +65,6 @@ export class CreateEventUseCase
     }
 
     const event: Journey = eventOrError.getValue();
-    console.log(event);
-
     try {
       await this.eventRepo.save(event);
     } catch (err) {

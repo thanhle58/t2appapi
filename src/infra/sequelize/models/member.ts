@@ -19,7 +19,10 @@ export const MemberModel = (sequelize: any) => {
   Member.init(
     {
       user_base_id: DataTypes.STRING,
-      member_id: DataTypes.STRING,
+      member_id: {
+        type:DataTypes.UUIDV4,
+        primaryKey: true,
+      },
     },
     {
       sequelize,

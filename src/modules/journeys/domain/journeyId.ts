@@ -2,7 +2,7 @@ import { Result } from "../../../core/logic/Result";
 import { Entity } from "../../../core/domain/Entity";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 
-export class EventId extends Entity<any> {
+export class JourneyId extends Entity<any> {
   get id(): UniqueEntityID {
     return this._id;
   }
@@ -11,8 +11,8 @@ export class EventId extends Entity<any> {
     super(null, id);
   }
 
-  public static create (id?: UniqueEntityID): Result<EventId> {
-    return Result.ok<EventId>(new EventId(id));
+  public static create (id?: UniqueEntityID): Result<JourneyId> {
+    return Result.ok<JourneyId>(new JourneyId(id));
   }
 
 }

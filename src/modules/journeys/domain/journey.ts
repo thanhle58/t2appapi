@@ -2,7 +2,7 @@ import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 import { Result } from "../../../core/logic/Result";
 import { Guard } from "../../../core/logic/Guard";
-import { EventId } from "./eventId";
+import { JourneyId } from "./journeyId";
 import { Member } from "./member";
 import { MemberId } from "./memberId";
 import { Members } from "./members";
@@ -31,8 +31,8 @@ export class Journey extends AggregateRoot<JourneyProps> {
     return this.props.title;
   }
 
-  get eventId(): EventId {
-    return EventId.create(this._id).getValue();
+  get journeyId(): JourneyId {
+    return JourneyId.create(this._id).getValue();
   }
 
   get startDate(): Date {
@@ -101,6 +101,7 @@ export class Journey extends AggregateRoot<JourneyProps> {
       price: props.price ? props.price : 0,
       totalNumMember: props.totalNumMember ? props.totalNumMember : 0,
       members: props.members ? props.members : Members.create([]),
+      type: props.type ? props.type : "trekkking",
     };
 
     const event = new Journey(defaultProps, id);

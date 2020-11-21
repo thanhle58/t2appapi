@@ -38,7 +38,7 @@ export class EventMap extends Mapper<Journey> {
 
   public static toDTO(event: Journey): EventDTO {
     return {
-      journeyId: event.eventId.id.toValue().toString(),
+      journeyId: event.journeyId.id.toValue().toString(),
       createBy: event.createBy.id.toString(),
       title: event.title || "",
       price: event.price || 0,

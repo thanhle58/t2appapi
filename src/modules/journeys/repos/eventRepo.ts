@@ -65,9 +65,9 @@ export class EventRepo implements IEventRepo {
       const eventModel = this.models.Journey;
       await eventModel.create(rawEvent);
     } catch (error) {
-      console.log(error);
       if (error instanceof DatabaseError) {
-        throw Result.fail<Journey>(error.message);
+        throw Result.fail<DatabaseError>(error.message);
+        // throw new Error(error.message);
       }
     }
   }

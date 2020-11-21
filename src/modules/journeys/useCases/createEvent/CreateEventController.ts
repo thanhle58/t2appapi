@@ -14,22 +14,22 @@ export class CreateEventController extends BaseController {
 
   async executeImpl(): Promise<any> {
     const dto: CreateEventDTO = this.req.body as CreateEventDTO;
-    console.log(dto)
     try {
       const result = await this.eventCase.execute(dto);
       if (result.isLeft()) {
         const error = result.value;
         switch (error.constructor) {
           case GenericAppError.UnexpectedError:
-            return this.fail(error.errorValue().message);
+            return this.fail(error.errorValue().error);
           default:
-            return this.fail(error.errorValue());
+            return this.fail(error.errorValue().error);
         }
       } else {
         return this.created(this.res);
       }
     } catch (err) {
-      return this.fail("dsdsdsdsd");
+      console.log(err)
+      return this.fail(err.message);
     }
   }
 }
