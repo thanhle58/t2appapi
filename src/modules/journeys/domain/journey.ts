@@ -82,6 +82,7 @@ export class Journey extends AggregateRoot<JourneyProps> {
   public static updateComment() {}
   public static addVote() {}
   public static removeVote() {}
+  public static addPlaces(places: JourneyPlaces) {}
 
   public static create(
     props: JourneyProps,

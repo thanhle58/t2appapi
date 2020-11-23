@@ -10,7 +10,7 @@ export class Identifier<T> {
     if (!(id instanceof this.constructor)) {
       return false;
     }
-    return true;
+    return id.toValue() === this.value;
   }
 
   toString() {

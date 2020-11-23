@@ -43,7 +43,7 @@ const serverlessConfiguration: Serverless = {
           },
         },
       ],
-      layers: ["NodeModulesLambdaLayer"],
+      // layers: ["NodeModulesLambdaLayer"],
     },
   }
 };

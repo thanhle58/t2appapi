@@ -17,7 +17,7 @@ export abstract class BaseController {
     code: number,
     message: string
   ) {
-    return res.sendStatus(code).json({ message });
+    return res.status(code).json({message});
   }
 
   public ok<T>(res: express.Response, dto?: T) {
@@ -94,7 +94,7 @@ export abstract class BaseController {
 
   public fail(error: Error | string) {
     return this.res.status(500).json({
-      message:  error.toString(),
+      message: error.toString(),
     });
   }
 }

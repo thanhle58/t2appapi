@@ -9,7 +9,7 @@ export class JourneyPlaces extends WatchedList<JourneyPlace> {
     return a.equals(b);
   }
 
-  public static create(comments?: JourneyPlace[]): JourneyPlaces {
-    return new JourneyPlaces(comments ? comments : []);
+  public static create(places?: JourneyPlace[]): JourneyPlaces {
+    return new JourneyPlaces(places ? places : []);
   }
 }

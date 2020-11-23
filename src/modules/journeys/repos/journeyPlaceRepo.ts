@@ -6,13 +6,14 @@ import { Op, Model } from "sequelize";
 import { JourneyId } from "../domain/journeyId";
 import { PlaceId } from "../domain/paceId";
 import { JourneyPlace } from "../domain/journeyPlace";
+import { JourneyPlaces } from "../domain/journeyPlaces";
 import { JourneyPlaceMap } from "../mappers/journeyPlaceMap";
 
 export interface IJourneyPlaceRepo {
   exists(placeId: PlaceId, journeyId: JourneyId): Promise<boolean>;
   save(place: JourneyPlace): Promise<any>;
   delete(place: JourneyPlace): Promise<void>;
-  saveBulk(): Promise<void>;
+  saveBulk(places: JourneyPlaces): Promise<void>;
 }
 
 export class JourneyPlaceRepo implements IJourneyPlaceRepo {
@@ -37,8 +38,10 @@ export class JourneyPlaceRepo implements IJourneyPlaceRepo {
     return !!journeyPlace === true;
   }
 
-  saveBulk(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async saveBulk(places: JourneyPlaces): Promise<void> {
+    for (let place of places.getNewItems()) {
+      await this.save(place);
+    }
   }
 
   async save(place: JourneyPlace): Promise<any> {

@@ -11,15 +11,15 @@ export class JourneyPlaceMap extends Mapper<JourneyPlace> {
     };
   }
 
-  public static toDomain(raw: any): JourneyPlace | undefined | null {
+  public static toDomain(raw: any): JourneyPlace | null {
     const eventOrError = JourneyPlace.create(
       {
         placeId: raw.place_id,
         journeyId: raw.journey_id,
       },
-      new UniqueEntityID(raw.journey_id)
+      new UniqueEntityID()
     );
-    eventOrError.isFailure ? console.log(eventOrError.error) : null;
+    eventOrError.isFailure ? console.log(eventOrError.error) : "";
     return eventOrError.isSuccess ? eventOrError.getValue() : null;
   }
 }

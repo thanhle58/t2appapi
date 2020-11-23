@@ -8,8 +8,8 @@ import { PlaceId } from "./paceId";
 interface IJourneyPlaceProps {
   journeyId: JourneyId;
   placeId: PlaceId;
-  startDate?: number;
-  endDate?: number;
+  // startDate?: number;
+  // endDate?: number;
 }
 
 export class JourneyPlace extends Entity<IJourneyPlaceProps> {
