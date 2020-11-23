@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -8,17 +8,22 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable('journey_member', { 
-      plance_id: { 
+    await queryInterface.createTable("journey_place", {
+      journey_place_id: {
         primaryKey: true,
+        allowNull: false,
+        type: Sequelize.UUID,
+      },
+      place_id: {
+        allowNull: false,
         type: Sequelize.UUID,
         references: {
           model: "place",
           key: "place_id",
         },
       },
-      journey_id: { 
-        primaryKey: true,
+      journey_id: {
+        allowNull: false,
         type: Sequelize.UUID,
         references: {
           model: "journey",
@@ -35,5 +40,5 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-  }
+  },
 };

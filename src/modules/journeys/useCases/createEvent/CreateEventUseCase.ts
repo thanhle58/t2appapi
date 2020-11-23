@@ -8,8 +8,8 @@ import { IEventRepo } from "../../repos/eventRepo";
 import { IMemberRepo } from "../../repos/memberRepo";
 import { Journey } from "../../domain/journey";
 import { MemberId } from "../../domain/memberId";
-import { LocationId } from "../../domain/locationId";
-import Aws from "serverless/aws";
+import { PlaceId } from "../../domain/paceId";
+
 type Response = Either<
   GenericAppError.UnexpectedError | Result<any>,
   Result<void>
@@ -26,7 +26,7 @@ export class CreateEventUseCase
   }
 
   async execute(request: CreateEventDTO): Promise<Response> {
-    const { title, price, create_by, status, location_id, type } = request;
+    const { title, price, create_by, status, type } = request;
     const memnberidIsExist = await this.memberRepo.exists(create_by);
 
     if (!memnberidIsExist) {

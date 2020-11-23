@@ -6,6 +6,6 @@ export interface CreateEventDTO {
     price?: number;
     create_by: string;
     status?: number;
-    location_id?: string;
+    location_ids?: string[];
     type: string;
 }

@@ -6,6 +6,7 @@ import { JourneyId } from "./journeyId";
 import { Member } from "./member";
 import { MemberId } from "./memberId";
 import { Members } from "./members";
+import { JourneyPlaces } from "./journeyPlaces";
 //events
 import { EventCreated } from "./events/eventCreated";
 
@@ -18,6 +19,7 @@ export interface JourneyProps {
   createBy: MemberId;
   type?: string;
   journeyId?: string;
+  places?: JourneyPlaces;
   members?: Members;
   totalNumMember?: number;
 }
@@ -87,7 +89,7 @@ export class Journey extends AggregateRoot<JourneyProps> {
   ): Result<Journey> {
     const guardedProps = [
       { argument: props.title, argumentName: "title" },
-      { argument: props.createBy, argumentName: "createBy" },
+      // { argument: props.createBy, argumentName: "createBy" },
       // { argument: props.locationId, argumentName: "locationId" },
     ];
 
