@@ -1,6 +1,6 @@
 import { CreateEventController } from "./CreateEventController";
 import { CreateEventUseCase } from "./CreateEventUseCase";
-import { eventRepo, memberRepo, journeyPlace } from "../../repos";
-const createEventUseCase = new CreateEventUseCase(eventRepo, memberRepo, journeyPlace);
+import { journeyRepo, memberRepo } from "../../repos";
+const createEventUseCase = new CreateEventUseCase(journeyRepo, memberRepo);
 const createEventController = new CreateEventController(createEventUseCase);
 export { createEventUseCase, createEventController };

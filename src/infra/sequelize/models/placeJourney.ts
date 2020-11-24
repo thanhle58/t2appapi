@@ -33,6 +33,9 @@ export const PlaceJourney = (sequelize: any) => {
     {
       sequelize,
       modelName: "PlaceJourney",
+      tableName: "journey_place",
+      freezeTableName: true,
+      underscored: true,
     }
   );
   return PlaceJourney;

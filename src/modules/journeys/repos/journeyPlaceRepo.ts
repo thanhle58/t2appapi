@@ -40,6 +40,7 @@ export class JourneyPlaceRepo implements IJourneyPlaceRepo {
 
   async saveBulk(places: JourneyPlaces): Promise<void> {
     for (let place of places.getNewItems()) {
+      console.log(place);
       await this.save(place);
     }
   }

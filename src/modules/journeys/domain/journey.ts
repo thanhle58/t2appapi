@@ -9,6 +9,7 @@ import { Members } from "./members";
 import { JourneyPlaces } from "./journeyPlaces";
 //events
 import { EventCreated } from "./events/eventCreated";
+import { JourneyPlace } from "./journeyPlace";
 
 export interface JourneyProps {
   title: string;
@@ -73,26 +74,29 @@ export class Journey extends AggregateRoot<JourneyProps> {
     super(props, id);
   }
 
-  public static addMember(member: Member) {}
-  public static addComment() {}
-  public static updateStartdate() {}
-  public static updateEndDate() {}
-  public static updateStatus() {}
-  public static removeMember() {}
-  public static updateComment() {}
-  public static addVote() {}
-  public static removeVote() {}
-  public static addPlaces(places: JourneyPlaces) {}
+  public addMember(member: Member) {
+    this.props.members?.add(member);
+    return Result.ok<void>();
+  }
+
+  public updateStatus() {}
+  public removeMember() {}
+  public removeVote() {}
+
+  public addPlace(place: JourneyPlace) {
+    this.props.places?.add(place);
+    return Result.ok<void>();
+  }
+
+  public getPlaces(): JourneyPlaces {
+    return this.props.places || JourneyPlaces.create([]);
+  }
 
   public static create(
     props: JourneyProps,
     id?: UniqueEntityID
   ): Result<Journey> {
-    const guardedProps = [
-      { argument: props.title, argumentName: "title" },
-      // { argument: props.createBy, argumentName: "createBy" },
-      // { argument: props.locationId, argumentName: "locationId" },
-    ];
+    const guardedProps = [{ argument: props.title, argumentName: "title" }];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
     if (!guardResult.succeeded) {
@@ -105,6 +109,7 @@ export class Journey extends AggregateRoot<JourneyProps> {
       totalNumMember: props.totalNumMember ? props.totalNumMember : 0,
       members: props.members ? props.members : Members.create([]),
       type: props.type ? props.type : "trekkking",
+      places: props.places ? props.places : JourneyPlaces.create([]),
     };
 
     const event = new Journey(defaultProps, id);

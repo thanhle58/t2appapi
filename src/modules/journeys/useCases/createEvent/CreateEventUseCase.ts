@@ -4,13 +4,11 @@ import { Either, Result, left, right } from "../../../../core/logic/Result";
 import { UniqueEntityID } from "../../../../core/domain/UniqueEntityID";
 import { GenericAppError } from "../../../../core/logic/AppError";
 import { CreateJourneyErrors } from "./CreateJourneyErrors";
-import { IEventRepo } from "../../repos/eventRepo";
+import { IJourneyRepo } from "../../repos/journeyRepo";
 import { IMemberRepo } from "../../repos/memberRepo";
-import { IJourneyPlaceRepo } from "../../repos/journeyPlaceRepo";
 import { Journey } from "../../domain/journey";
 import { MemberId } from "../../domain/memberId";
 import { PlaceId } from "../../domain/paceId";
-import { JourneyPlaces } from "../../domain/journeyPlaces";
 import { JourneyPlace } from "../../domain/journeyPlace";
 
 type Response = Either<
@@ -22,18 +20,12 @@ type Response = Either<
 
 export class CreateEventUseCase
   implements UseCase<CreateEventDTO, Promise<Response>> {
-  private eventRepo: IEventRepo;
+  private journeyRepo: IJourneyRepo;
   private memberRepo: IMemberRepo;
-  private journeyPlaceRepo: IJourneyPlaceRepo;
 
-  constructor(
-    eventRepo: IEventRepo,
-    memberRepo: IMemberRepo,
-    journeyPlaceRepo: IJourneyPlaceRepo
-  ) {
-    this.eventRepo = eventRepo;
+  constructor(eventRepo: IJourneyRepo, memberRepo: IMemberRepo) {
+    this.journeyRepo = eventRepo;
     this.memberRepo = memberRepo;
-    this.journeyPlaceRepo = journeyPlaceRepo;
   }
 
   async execute(request: CreateEventDTO): Promise<Response> {
@@ -45,8 +37,6 @@ export class CreateEventUseCase
     }
 
     const memberIdOrError = MemberId.create(new UniqueEntityID(create_by));
-    let journeyPlaceWatch = JourneyPlaces.create();
-
     if (memberIdOrError.isFailure) {
       return left(Result.fail<MemberId>(memberIdOrError.error));
     }
@@ -68,21 +58,17 @@ export class CreateEventUseCase
     }
 
     const journey: Journey = journeysOrError.getValue();
-    const journeyId = journey.id.toString();
 
     for (let placeId of location_ids) {
-      const journeyPlace = JourneyPlace.create({
+      const place = JourneyPlace.create({
         placeId: PlaceId.create(new UniqueEntityID(placeId)).getValue(),
-        journeyId: PlaceId.create(new UniqueEntityID(journeyId)).getValue(),
+        journeyId: journey.journeyId,
       }).getValue();
-      journeyPlaceWatch.add(journeyPlace);
+      journey.addPlace(place);
     }
 
-    try {
-      await this.eventRepo.save(journey);
-      console.log(journeyPlaceWatch.getNewItems());
-      console.log(journeyPlaceWatch);
-
+    try { 
+      await this.journeyRepo.save(journey);
     } catch (err) {
       return left(new GenericAppError.UnexpectedError(err.error)) as Response;
     }
