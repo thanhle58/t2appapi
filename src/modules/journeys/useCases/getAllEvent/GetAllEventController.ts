@@ -1,7 +1,7 @@
 import { BaseController } from "../../../../core/infra/BaseController";
 import { GetAllEventUseCase } from "./GetAllEventUseCase";
 import { Journey } from "../../domain/journey";
-import { EventMap } from "../../mappers/EventMap";
+import { EventMap } from "../../mappers/journeyMap";
 
 export class GetAllEventController extends BaseController {
   private getAllEventCase: GetAllEventUseCase;

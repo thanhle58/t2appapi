@@ -2,10 +2,10 @@ import { Entity } from "../../../core/domain/Entity";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 import { Result } from "../../../core/logic/Result";
 import { Guard } from "../../../core/logic/Guard";
-import { LocationId } from "./locationId";
+import { PlaceId } from "./paceId";
 
 interface LocationProps {
-  loactionId: LocationId;
+  placeId: PlaceId;
   locationName: string;
 }
 

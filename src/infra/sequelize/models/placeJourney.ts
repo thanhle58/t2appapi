@@ -25,10 +25,17 @@ export const PlaceJourney = (sequelize: any) => {
     {
       place_id: DataTypes.UUIDV4,
       journey_id: DataTypes.UUIDV4,
+      journey_place_id: {
+        type: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
     },
     {
       sequelize,
       modelName: "PlaceJourney",
+      tableName: "journey_place",
+      freezeTableName: true,
+      underscored: true,
     }
   );
   return PlaceJourney;

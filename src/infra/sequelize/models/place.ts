@@ -14,7 +14,10 @@ export const PlaceModel = (sequelize: any) => {
   }
   Place.init(
     {
-      place_id: DataTypes.STRING,
+      place_id: {
+        type: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
       title: DataTypes.STRING,
       place_type: DataTypes.STRING,
       status: DataTypes.STRING,
@@ -23,6 +26,7 @@ export const PlaceModel = (sequelize: any) => {
       sequelize,
       modelName: "Place",
       tableName: "place",
+      freezeTableName: true,
     }
   );
   return Place;

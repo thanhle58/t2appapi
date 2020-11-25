@@ -2,15 +2,18 @@ import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../core/domain/UniqueEntityID";
 import { Result } from "../../../core/logic/Result";
 import { Guard } from "../../../core/logic/Guard";
-import { EventId } from "./eventId";
+import { JourneyId } from "./journeyId";
 import { Member } from "./member";
 import { MemberId } from "./memberId";
 import { Members } from "./members";
+import { JourneyPlaces } from "./journeyPlaces";
+import { JourneyTitle } from "./journeyTitle";
+import { JourneyPlace } from "./journeyPlace";
 //events
-import { EventCreated } from "./events/eventCreated";
+import { JourneyCreated } from "./events/journeyCreated";
 
 export interface JourneyProps {
-  title: string;
+  title: JourneyTitle;
   price: number;
   status?: number;
   startDate: number;
@@ -18,6 +21,7 @@ export interface JourneyProps {
   createBy: MemberId;
   type?: string;
   journeyId?: string;
+  places?: JourneyPlaces;
   members?: Members;
   totalNumMember?: number;
 }
@@ -27,12 +31,12 @@ export class Journey extends AggregateRoot<JourneyProps> {
     return this._id;
   }
 
-  get title(): string | undefined {
+  get title(): JourneyTitle {
     return this.props.title;
   }
 
-  get eventId(): EventId {
-    return EventId.create(this._id).getValue();
+  get journeyId(): JourneyId {
+    return JourneyId.create(this._id).getValue();
   }
 
   get startDate(): Date {
@@ -71,29 +75,34 @@ export class Journey extends AggregateRoot<JourneyProps> {
     super(props, id);
   }
 
-  public static addMember(member: Member) {}
-  public static addComment() {}
-  public static updateStartdate() {}
-  public static updateEndDate() {}
-  public static updateStatus() {}
-  public static removeMember() {}
-  public static updateComment() {}
-  public static addVote() {}
-  public static removeVote() {}
+  public addMember(member: Member) {
+    this.props.members?.add(member);
+    return Result.ok<void>();
+  }
+
+  public updateStatus() {}
+  public removeMember() {}
+  public removeVote() {}
+
+  public addPlace(place: JourneyPlace) {
+    this.props.places?.add(place);
+    return Result.ok<void>();
+  }
+
+  public getPlaces(): JourneyPlaces {
+    return this.props.places || JourneyPlaces.create([]);
+  }
 
   public static create(
     props: JourneyProps,
     id?: UniqueEntityID
   ): Result<Journey> {
-    const guardedProps = [
-      { argument: props.title, argumentName: "title" },
-      { argument: props.createBy, argumentName: "createBy" },
-      // { argument: props.locationId, argumentName: "locationId" },
-    ];
+    const guardedProps = [{ argument: props.title, argumentName: "title" }];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+
     if (!guardResult.succeeded) {
-      return Result.fail<Journey>(guardResult.message);
+      return Result.fail<Journey>(guardResult);
     }
 
     const defaultProps: JourneyProps = {
@@ -101,13 +110,15 @@ export class Journey extends AggregateRoot<JourneyProps> {
       price: props.price ? props.price : 0,
       totalNumMember: props.totalNumMember ? props.totalNumMember : 0,
       members: props.members ? props.members : Members.create([]),
+      type: props.type ? props.type : "trekkking",
+      places: props.places ? props.places : JourneyPlaces.create([]),
     };
 
     const event = new Journey(defaultProps, id);
     const isNewEevent = !!id === false;
 
     if (isNewEevent) {
-      event.addDomainEvent(new EventCreated(event));
+      event.addDomainEvent(new JourneyCreated(event));
     }
 
     return Result.ok<Journey>(event);

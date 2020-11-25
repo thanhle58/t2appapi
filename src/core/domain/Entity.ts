@@ -23,6 +23,7 @@ export abstract class Entity<T> {
     if (!isEntity(object)) {
       return false;
     }
+    console.log(this._id.equals(object._id))
     return this._id.equals(object._id);
   }
 }
