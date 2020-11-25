@@ -1,5 +1,5 @@
 import { Journey } from "../domain/journey";
-import { EventMap } from "../mappers/EventMap";
+import { EventMap } from "../mappers/journeyMap";
 import { DatabaseError, ModelOptions } from "sequelize";
 import { Result } from "../../../core/logic/Result";
 import { Op, Model } from "sequelize";

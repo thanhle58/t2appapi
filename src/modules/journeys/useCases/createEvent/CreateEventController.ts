@@ -1,7 +1,6 @@
 import { BaseController } from "../../../../core/infra/BaseController";
 import { CreateEventUseCase } from "./CreateEventUseCase";
 import { CreateEventDTO } from "./CreateEventDTO";
-import { GenericAppError } from "../../../../core/logic/AppError";
 import { CreateJourneyErrors } from "./CreateJourneyErrors";
 
 export class CreateEventController extends BaseController {
@@ -23,18 +22,18 @@ export class CreateEventController extends BaseController {
         const error = result.value;
         switch (error.constructor) {
           case CreateJourneyErrors.MemberDoesntExistError:
-            console.log(error.errorValue())
             return this.notFound(error.errorValue().message);
           // case GenericAppError.UnexpectedError:
           //   return this.fail(error.errorValue().error);
           default:
-            return this.fail(error.errorValue().message);
+            return this.fail(error.errorValue());
         }
       } else {
         return this.created(this.res);
       }
     } catch (err) {
-      return this.fail(err.message);
+      // console.log(err)
+      return this.fail(err);
     }
   }
 }

@@ -8,7 +8,7 @@ export class EventMap extends Mapper<Journey> {
   public static toPersistence(event: Journey) {
     return {
       journey_id: event.id.toValue(),
-      title: event.title,
+      title: event.title.value,
       start_date: event.startDate,
       end_date: event.endDate,
       price: event.price,
@@ -40,7 +40,7 @@ export class EventMap extends Mapper<Journey> {
     return {
       journeyId: event.journeyId.id.toValue().toString(),
       createBy: event.createBy.id.toString(),
-      title: event.title || "",
+      title: event.title.value,
       price: event.price || 0,
       startDate: event.startDate,
       endDate: event.endDate,

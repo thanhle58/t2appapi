@@ -1,3 +1,4 @@
+import { DatabaseError } from "sequelize";
 import { UseCase } from "core/domain/useCase";
 import { CreateEventDTO } from "./CreateEventDTO";
 import { Either, Result, left, right } from "../../../../core/logic/Result";
@@ -10,6 +11,7 @@ import { Journey } from "../../domain/journey";
 import { MemberId } from "../../domain/memberId";
 import { PlaceId } from "../../domain/paceId";
 import { JourneyPlace } from "../../domain/journeyPlace";
+import { JourneyTitle } from "../../domain/journeyTitle";
 
 type Response = Either<
   | CreateJourneyErrors.MemberDoesntExistError
@@ -29,49 +31,58 @@ export class CreateEventUseCase
   }
 
   async execute(request: CreateEventDTO): Promise<Response> {
-    const { title, price, create_by, status, type, location_ids } = request;
-    const memnberidIsExist = await this.memberRepo.exists(create_by);
+    const { price, create_by, status, type, location_ids } = request;
 
-    if (!memnberidIsExist) {
-      return left(new CreateJourneyErrors.MemberDoesntExistError());
-    }
+    try {
+      const memnberidIsExist = await this.memberRepo.exists(create_by);
+      if (!memnberidIsExist) {
+        return left(new CreateJourneyErrors.MemberDoesntExistError());
+      }
 
-    const memberIdOrError = MemberId.create(new UniqueEntityID(create_by));
-    if (memberIdOrError.isFailure) {
-      return left(Result.fail<MemberId>(memberIdOrError.error));
-    }
+      const memberIdOrError = MemberId.create(new UniqueEntityID(create_by));
 
-    const journeysOrError = Journey.create({
-      title: title,
-      startDate: new Date().getMinutes(),
-      endDate: new Date().getMinutes(),
-      price: price || 0,
-      createBy: memberIdOrError.getValue(),
-      type: type,
-      status: status,
-    });
+      if (memberIdOrError.isFailure) {
+        return left(memberIdOrError);
+      }
 
-    // const combinedPropsResult = Result.combine([]);
+      const titleOrError = JourneyTitle.create({ value: request.title });
+      if (titleOrError.isFailure) {
+        return left(titleOrError);
+      }
 
-    if (journeysOrError.isFailure) {
-      return left(Result.fail<Journey>(journeysOrError.error)) as Response;
-    }
+      const journeysOrError = Journey.create({
+        title: titleOrError.getValue(),
+        startDate: new Date().getMinutes(),
+        endDate: new Date().getMinutes(),
+        price: price || 0,
+        createBy: memberIdOrError.getValue(),
+        type: type,
+        status: status,
+      });
 
-    const journey: Journey = journeysOrError.getValue();
+      // const combinedPropsResult = Result.combine([]);
 
-    for (let placeId of location_ids) {
-      const place = JourneyPlace.create({
-        placeId: PlaceId.create(new UniqueEntityID(placeId)).getValue(),
-        journeyId: journey.journeyId,
-      }).getValue();
-      journey.addPlace(place);
-    }
+      if (journeysOrError.isFailure) {
+        return left(journeysOrError);
+      }
 
-    try { 
+      const journey: Journey = journeysOrError.getValue();
+
+      for (let placeId of location_ids) {
+        const place = JourneyPlace.create({
+          placeId: PlaceId.create(new UniqueEntityID(placeId)).getValue(),
+          journeyId: journey.journeyId,
+        }).getValue();
+        journey.addPlace(place);
+      }
       await this.journeyRepo.save(journey);
+      return right(Result.ok<void>());
     } catch (err) {
-      return left(new GenericAppError.UnexpectedError(err.error)) as Response;
+      if (err instanceof DatabaseError) {
+        console.log(err.message);
+        return left(Result.fail(err.message));
+      }
+      return left(new GenericAppError.UnexpectedError(err));
     }
-    return right(Result.ok<void>()) as Response;
   }
 }

@@ -7,12 +7,13 @@ import { Member } from "./member";
 import { MemberId } from "./memberId";
 import { Members } from "./members";
 import { JourneyPlaces } from "./journeyPlaces";
+import { JourneyTitle } from "./journeyTitle"
 //events
 import { EventCreated } from "./events/eventCreated";
 import { JourneyPlace } from "./journeyPlace";
 
 export interface JourneyProps {
-  title: string;
+  title: JourneyTitle;
   price: number;
   status?: number;
   startDate: number;
@@ -30,7 +31,7 @@ export class Journey extends AggregateRoot<JourneyProps> {
     return this._id;
   }
 
-  get title(): string | undefined {
+  get title(): JourneyTitle {
     return this.props.title;
   }
 
