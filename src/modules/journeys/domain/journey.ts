@@ -7,10 +7,10 @@ import { Member } from "./member";
 import { MemberId } from "./memberId";
 import { Members } from "./members";
 import { JourneyPlaces } from "./journeyPlaces";
-import { JourneyTitle } from "./journeyTitle"
-//events
-import { EventCreated } from "./events/eventCreated";
+import { JourneyTitle } from "./journeyTitle";
 import { JourneyPlace } from "./journeyPlace";
+//events
+import { JourneyCreated } from "./events/journeyCreated";
 
 export interface JourneyProps {
   title: JourneyTitle;
@@ -100,8 +100,9 @@ export class Journey extends AggregateRoot<JourneyProps> {
     const guardedProps = [{ argument: props.title, argumentName: "title" }];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+
     if (!guardResult.succeeded) {
-      return Result.fail<Journey>(guardResult.message);
+      return Result.fail<Journey>(guardResult);
     }
 
     const defaultProps: JourneyProps = {
@@ -117,7 +118,7 @@ export class Journey extends AggregateRoot<JourneyProps> {
     const isNewEevent = !!id === false;
 
     if (isNewEevent) {
-      event.addDomainEvent(new EventCreated(event));
+      event.addDomainEvent(new JourneyCreated(event));
     }
 
     return Result.ok<Journey>(event);

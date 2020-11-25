@@ -1,14 +1,14 @@
 import express from "express";
 
-import { createEventController } from "../../../useCases/createEvent";
+import { createJourneyController } from "../../../useCases/createJourney";
 import { getAllEventController } from "../../../useCases/getAllEvent";
 
-const eventRouter = express.Router();
-eventRouter.post("/:memberid/journey", (req, res) => createEventController.execute(req, res));
-eventRouter.get("/journeys", (req, res) => getAllEventController.execute(req, res));
+const journeyRouter = express.Router();
+journeyRouter.post("/:memberid/journey", (req, res) => createJourneyController.execute(req, res));
+journeyRouter.get("/journeys", (req, res) => getAllEventController.execute(req, res));
 
-eventRouter.get("/journey/:journeyId", (req, res) => getAllEventController.execute(req, res));
-eventRouter.delete("/journey/:journeyId", (req, res) => getAllEventController.execute(req, res));
-eventRouter.patch("/journey/:journeyId", (req, res) => getAllEventController.execute(req, res));
+journeyRouter.get("/journey/:journeyId", (req, res) => getAllEventController.execute(req, res));
+journeyRouter.delete("/journey/:journeyId", (req, res) => getAllEventController.execute(req, res));
+journeyRouter.patch("/journey/:journeyId", (req, res) => getAllEventController.execute(req, res));
 
-export { eventRouter };
+export { journeyRouter };

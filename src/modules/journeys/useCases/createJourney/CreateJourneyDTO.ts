@@ -1,5 +1,5 @@
 
-export interface CreateEventDTO {
+export interface CreateJourneyDTO {
     title: string;
     price?: number;
     create_by: string;

@@ -57,27 +57,32 @@ export class JourneyRepo implements IJourneyRepo {
     return !!journey === true;
   }
 
+  public async rollbackSave(journey: Journey): Promise<any> {
+    const JourneyModel = this.models.Journey;
+    // await this.genresRepo.removeByGenreIds(album.genres.map((g) => g.genreId));
+    await JourneyModel.destroy({
+      where: {
+        journey_id: {
+          [Op.eq]: journey.id.toString(),
+        },
+      },
+    });
+  }
+
   public async save(journey: Journey): Promise<void> {
-    console.log(journey)
-    const eventModel = this.models.Journey;
+    const JourneyModel = this.models.Journey;
     const exists = await this.exists(journey.journeyId);
     const isNewJourney = !exists;
-
     const rawSequelizeJourney = EventMap.toPersistence(journey);
-    console.log(rawSequelizeJourney);
-
-    if (isNewJourney) {
-      try {
-        await eventModel.create(rawSequelizeJourney);
-        await this.journeyPlaceRepo.saveBulk(journey.getPlaces());
-      } catch (err) {
-        // if (error instanceof DatabaseError) {
-        //   throw Result.fail<DatabaseError>(error.message);
-        //   // throw new Error(error.message);
-        // }
-        throw new Error(err.toString());
+    try {
+      if (isNewJourney) {
+        await JourneyModel.create(rawSequelizeJourney);
+      } else {
       }
-    } else {
+      await this.journeyPlaceRepo.saveBulk(journey.getPlaces());
+    } catch (err) {
+      this.rollbackSave(journey);
+      throw Result.fail<void>(err.message);
     }
   }
 }

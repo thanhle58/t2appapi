@@ -1,17 +1,19 @@
-import { DatabaseError } from "sequelize";
 import { UseCase } from "core/domain/useCase";
-import { CreateEventDTO } from "./CreateEventDTO";
+import { CreateJourneyDTO } from "./CreateJourneyDTO";
 import { Either, Result, left, right } from "../../../../core/logic/Result";
 import { UniqueEntityID } from "../../../../core/domain/UniqueEntityID";
 import { GenericAppError } from "../../../../core/logic/AppError";
 import { CreateJourneyErrors } from "./CreateJourneyErrors";
-import { IJourneyRepo } from "../../repos/journeyRepo";
-import { IMemberRepo } from "../../repos/memberRepo";
 import { Journey } from "../../domain/journey";
 import { MemberId } from "../../domain/memberId";
 import { PlaceId } from "../../domain/paceId";
 import { JourneyPlace } from "../../domain/journeyPlace";
 import { JourneyTitle } from "../../domain/journeyTitle";
+
+// repos
+import { IJourneyRepo } from "../../repos/journeyRepo";
+import { IMemberRepo } from "../../repos/memberRepo";
+import { IPlaceRepo } from "../../repos/placeRepo";
 
 type Response = Either<
   | CreateJourneyErrors.MemberDoesntExistError
@@ -20,17 +22,23 @@ type Response = Either<
   Result<void>
 >;
 
-export class CreateEventUseCase
-  implements UseCase<CreateEventDTO, Promise<Response>> {
+export class CreateJourneyUseCase
+  implements UseCase<CreateJourneyDTO, Promise<Response>> {
   private journeyRepo: IJourneyRepo;
   private memberRepo: IMemberRepo;
+  private placeRepo: IPlaceRepo;
 
-  constructor(eventRepo: IJourneyRepo, memberRepo: IMemberRepo) {
-    this.journeyRepo = eventRepo;
+  constructor(
+    journeyRepo: IJourneyRepo,
+    memberRepo: IMemberRepo,
+    placeRepo: IPlaceRepo
+  ) {
+    this.journeyRepo = journeyRepo;
     this.memberRepo = memberRepo;
+    this.placeRepo = placeRepo;
   }
 
-  async execute(request: CreateEventDTO): Promise<Response> {
+  async execute(request: CreateJourneyDTO): Promise<Response> {
     const { price, create_by, status, type, location_ids } = request;
 
     try {
@@ -46,8 +54,9 @@ export class CreateEventUseCase
       }
 
       const titleOrError = JourneyTitle.create({ value: request.title });
+
       if (titleOrError.isFailure) {
-        return left(titleOrError);
+        return left(Result.fail<JourneyTitle>(titleOrError.errorValue()));
       }
 
       const journeysOrError = Journey.create({
@@ -60,14 +69,11 @@ export class CreateEventUseCase
         status: status,
       });
 
-      // const combinedPropsResult = Result.combine([]);
-
       if (journeysOrError.isFailure) {
-        return left(journeysOrError);
+        return left(Result.fail<Journey>(journeysOrError.errorValue()));
       }
 
       const journey: Journey = journeysOrError.getValue();
-
       for (let placeId of location_ids) {
         const place = JourneyPlace.create({
           placeId: PlaceId.create(new UniqueEntityID(placeId)).getValue(),
@@ -75,13 +81,13 @@ export class CreateEventUseCase
         }).getValue();
         journey.addPlace(place);
       }
+
       await this.journeyRepo.save(journey);
       return right(Result.ok<void>());
     } catch (err) {
-      if (err instanceof DatabaseError) {
-        console.log(err.message);
-        return left(Result.fail(err.message));
-      }
+      // if (err instanceof DatabaseError) {
+      //   return left(Result.fail(err));
+      // }
       return left(new GenericAppError.UnexpectedError(err));
     }
   }

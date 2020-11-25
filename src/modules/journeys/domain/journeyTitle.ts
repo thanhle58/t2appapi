@@ -18,7 +18,7 @@ export class JourneyTitle extends ValueObject<JourneyTitleProps> {
   public static create(props: JourneyTitleProps): Result<JourneyTitle> {
     const nullGuardResult = Guard.againstNullOrUndefined(props.value, "journeyTitle");
     if (!nullGuardResult.succeeded) {
-      return Result.fail<JourneyTitle>(nullGuardResult.message);
+      return Result.fail<JourneyTitle>(nullGuardResult);
     } else {
       return Result.ok<JourneyTitle>(new JourneyTitle(props));
     }
